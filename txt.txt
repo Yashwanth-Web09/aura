@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AURA — The AI Wellness Operating System</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* ==========================================================================
+       1. COLOR SYSTEM & iOS SAFARI OPTIMIZATIONS
+       ========================================================================== */
+    :root {
+      --bg-base: #02040a;
+      --cyan-glow: #00f2fe;
+      --purple-glow: #7f00ff;
+      --blue-glow: #3b82f6;
+      --orange-glow: #f59e0b;
+      --magenta-glow: #d946ef;
+      
+      --card-bg: rgba(10, 16, 32, 0.45);
+      --card-border: rgba(0, 242, 254, 0.18);
+      --card-border-glow: rgba(0, 242, 254, 0.4);
+      
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --text-dark: #4b5563;
+      
+      --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* Hardware accelerated smooth entry transitions */
+    .anim-fade {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    
+    .anim-fade-right {
+      opacity: 0;
+      transform: translateX(25px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+
+    .loaded .anim-fade,
+    .loaded .anim-fade-right {
+      opacity: 1;
+      transform: translate(0);
+    }
+
+    /* ==========================================================================
+       2. VIEWPORT LAYOUT & AMBIENT GLOWS
+       ========================================================================== */
+    .app-viewport {
+      display: flex;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      width: 100vw;
+      position: relative;
+      background: #02040a;
+      overflow: hidden;
+    }
+
+    /* Ambient Background Glows strictly matching image lighting */
+    .ambient-glow-1 {
+      position: absolute;
+      top: 10%;
+      left: 15%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.15) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: absolute;
+      bottom: -10%;
+      left: 20%;
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(127, 0, 255, 0.18) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Left Panel - Hero Visualization (60%) */
+    .left-panel {
+      flex: 0 0 58%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem 4rem;
+      z-index: 2;
+    }
+
+    /* Right Panel - Glass Login Form (42%) */
+    .right-panel {
+      flex: 0 0 42%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2.5rem;
+      z-index: 2;
+      background: rgba(2, 6, 18, 0.65);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Top Controls (Theme & Language) */
+    .top-controls {
+      position: absolute;
+      top: 2rem;
+      right: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 20;
+    }
+
+    .control-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 0.45rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
+    }
+
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(0, 242, 254, 0.3);
+    }
+
+    /* ==========================================================================
+       3. LEFT PANEL HEADER & PILLARS
+       ========================================================================== */
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: 0.18em;
+      color: #fff;
+    }
+
+    .brand-ring {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--cyan-glow);
+      border-right-color: var(--blue-glow);
+      border-bottom-color: var(--purple-glow);
+      animation: spin 5s linear infinite;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+    }
+
+    .hero-content {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      max-width: 500px;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-title .cyan-text {
+      color: var(--cyan-glow);
+      text-shadow: 0 0 25px rgba(0, 242, 254, 0.5);
+    }
+
+    .hero-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+      font-weight: 500;
+    }
+
+    /* Pillars Row */
+    .pillars-row {
+      display: flex;
+      gap: 2rem;
+      margin-top: 0.5rem;
+    }
+
+    .pillar-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .pillar-icon-wrap {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+    }
+
+    .pillar-box:nth-child(1) .pillar-icon-wrap { color: var(--cyan-glow); filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.6)); }
+    .pillar-box:nth-child(2) .pillar-icon-wrap { color: var(--purple-glow); filter: drop-shadow(0 0 8px rgba(127, 0, 255, 0.6)); }
+    .pillar-box:nth-child(3) .pillar-icon-wrap { color: #10b981; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6)); }
+    .pillar-box:nth-child(4) .pillar-icon-wrap { color: var(--orange-glow); filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6)); }
+
+    /* ==========================================================================
+       4. 3D Glowing Orb & Particle Canvas
+       ========================================================================== */
+    .orb-viewport-wrap {
+      position: absolute;
+      top: -20px;
+      right: 10px;
+      width: 500px;
+      height: 500px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #orbCanvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    #waveCanvas {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 180px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.85;
+    }
+
+    /* ==========================================================================
+       5. VERTICAL METRIC CARDS (Exact match to uploaded design)
+       ========================================================================== */
+    .metrics-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-top: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .metric-card-vertical {
+      background: rgba(8, 14, 28, 0.55);
+      border: 1px solid var(--card-border);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 185px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .metric-card-vertical:hover {
+      transform: translateY(-5px);
+      border-color: var(--card-border-glow);
+      box-shadow: 0 10px 30px rgba(0, 242, 254, 0.12);
+    }
+
+    .icon-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .card-heart .icon-badge { color: var(--cyan-glow); border-color: rgba(0, 242, 254, 0.3); box-shadow: 0 0 12px rgba(0, 242, 254, 0.2); }
+    .card-sleep .icon-badge { color: var(--purple-glow); border-color: rgba(127, 0, 255, 0.3); box-shadow: 0 0 12px rgba(127, 0, 255, 0.2); }
+    .card-water .icon-badge { color: var(--blue-glow); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 0 12px rgba(59, 130, 246, 0.2); }
+    .card-aura .icon-badge  { color: var(--orange-glow); border-color: rgba(245, 158, 11, 0.3); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2); }
+
+    .card-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.6rem;
+    }
+
+    .card-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+      margin-top: 0.1rem;
+    }
+
+    .card-unit {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .chart-canvas {
+      width: 100%;
+      height: 36px;
+      margin-top: 0.5rem;
+    }
+
+    .quote-block {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .quote-icon {
+      color: var(--purple-glow);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    /* ==========================================================================
+       6. RIGHT PANEL - GLASS CARD & FORMS
+       ========================================================================== */
+    .login-glass-card {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(10, 16, 30, 0.55);
+      border: 1px solid var(--card-border);
+      -webkit-backdrop-filter: blur(25px);
+      backdrop-filter: blur(25px);
+      border-radius: 28px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 242, 254, 0.05);
+      position: relative;
+    }
+
+    .glass-pill-bar {
+      width: 36px;
+      height: 3px;
+      background: var(--cyan-glow);
+      border-radius: 2px;
+      margin: 0.85rem auto 0;
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+
+    .login-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    .login-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* Input Fields with Cyan Glow Focus */
+    .form-group {
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .input-field-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .field-icon {
+      position: absolute;
+      left: 1.1rem;
+      color: var(--text-dark);
+      pointer-events: none;
+      transition: color 0.3s ease;
+    }
+
+    .input-control {
+      width: 100%;
+      background: rgba(3, 8, 20, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 0.9rem 1rem 0.9rem 2.8rem;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .input-control::placeholder {
+      color: #374151;
+    }
+
+    .input-control:focus {
+      border-color: var(--cyan-glow);
+      background: rgba(5, 12, 28, 0.85);
+      box-shadow: 0 0 18px rgba(0, 242, 254, 0.25);
+    }
+
+    .input-control:focus ~ .field-icon {
+      color: var(--cyan-glow);
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 1.1rem;
+      background: none;
+      border: none;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .password-toggle-btn:hover {
+      color: var(--text-main);
+    }
+
+    /* Options Bar */
+    .options-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .remember-check {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .remember-check input { display: none; }
+
+    .custom-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .remember-check input:checked + .custom-box {
+      background: var(--cyan-glow);
+      border-color: var(--cyan-glow);
+      color: #000;
+    }
+
+    .forgot-link {
+      color: var(--cyan-glow);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .forgot-link:hover { opacity: 0.85; text-decoration: underline; }
+
+    /* Buttons */
+    .btn-submit {
+      width: 100%;
+      padding: 0.95rem;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #00f2fe 0%, #3b82f6 50%, #7f00ff 100%);
+      background-size: 200% auto;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.98rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 8px 25px rgba(0, 242, 254, 0.35);
+      transition: all 0.4s ease;
+    }
+
+    .btn-submit:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0, 242, 254, 0.5);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .or-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-dark);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin: 1.25rem 0;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .or-divider span { padding: 0 0.8rem; }
+
+    .btn-create {
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      background: rgba(0, 242, 254, 0.03);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-create:hover {
+      background: rgba(0, 242, 254, 0.08);
+      border-color: var(--cyan-glow);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+    }
+
+    .legal-notice {
+      font-size: 0.75rem;
+      color: var(--text-dark);
+      text-align: center;
+      margin-top: 1.75rem;
+      line-height: 1.5;
+    }
+
+    .legal-notice a { color: var(--cyan-glow); text-decoration: none; }
+    .legal-notice a:hover { text-decoration: underline; }
+
+    /* Slide-in Alert Notification */
+    .toast-alert {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 0.65rem 1.25rem;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 30;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+    }
+
+    .toast-alert.active {
+      top: 20px;
+      opacity: 1;
+    }
+
+    /* Auth Overlay */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 4, 10, 0.88);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .auth-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .loading-pulse-ring {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: var(--cyan-glow);
+      border-right-color: var(--purple-glow);
+      animation: spin 1s linear infinite;
+      box-shadow: 0 0 25px var(--cyan-glow);
+    }
+
+    .status-msg {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* ==========================================================================
+       7. RESPONSIVE BREAKPOINTS (iOS & Mobile Supportive)
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .app-viewport { flex-direction: column; overflow-y: auto; }
+      .left-panel { flex: none; width: 100%; padding: 2.5rem 2rem; }
+      .right-panel { flex: none; width: 100%; padding: 2.5rem 1.5rem 4rem; border-left: none; }
+      .orb-viewport-wrap { width: 360px; height: 360px; right: -20px; top: -10px; }
+      .metrics-container { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .left-panel { padding: 2rem 1.25rem; }
+      .hero-title { font-size: 2.4rem; }
+      .pillars-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+      .metrics-container { grid-template-columns: 1fr; }
+      .metric-card-vertical { height: 160px; }
+      .orb-viewport-wrap { position: relative; width: 280px; height: 280px; margin: 0 auto; right: 0; top: 0; }
+      .login-glass-card { padding: 2rem 1.5rem; border-radius: 22px; }
+      .top-controls { top: 1.25rem; right: 1.25rem; }
+    }
+
+    .success-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(2,8,20,.78);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    opacity:0;
+    visibility:hidden;
+
+    transition:.45s ease;
+
+    z-index:9999;
+}
+
+.success-modal.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.success-card{
+
+    width:min(92%,520px);
+
+    background:rgba(10,16,30,.72);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    border-radius:28px;
+
+    padding:42px;
+
+    text-align:center;
+
+    backdrop-filter:blur(28px);
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.55),
+        0 0 60px rgba(0,242,254,.08);
+
+    transform:translateY(40px) scale(.92);
+
+    transition:.5s cubic-bezier(.22,1,.36,1);
+}
+
+.success-modal.show .success-card{
+
+    transform:translateY(0) scale(1);
+
+}
+
+.success-icon{
+
+    width:92px;
+
+    height:92px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:
+    radial-gradient(circle,
+    rgba(0,242,254,.35),
+    rgba(0,242,254,.08));
+
+    border:1px solid rgba(0,242,254,.25);
+
+    box-shadow:
+    0 0 35px rgba(0,242,254,.35);
+
+    margin-bottom:24px;
+}
+
+.success-icon i{
+
+    width:46px;
+
+    height:46px;
+
+    color:#00f2fe;
+
+}
+
+.success-title{
+
+    font-size:2rem;
+
+    font-weight:800;
+
+    color:white;
+
+    letter-spacing:.08em;
+
+    margin-bottom:12px;
+
+}
+
+.success-text{
+
+    color:#cbd5e1;
+
+    line-height:1.7;
+
+    font-size:.95rem;
+
+}
+
+.success-email{
+
+    margin:24px 0;
+
+    padding:14px;
+
+    border-radius:14px;
+
+    background:rgba(255,255,255,.04);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:#00f2fe;
+
+    font-weight:700;
+
+    word-break:break-all;
+
+}
+
+.success-actions{
+
+    display:flex;
+
+    gap:16px;
+
+    margin-top:28px;
+
+}
+
+.success-btn{
+
+    flex:1;
+
+    border:none;
+
+    cursor:pointer;
+
+    border-radius:14px;
+
+    padding:14px;
+
+    font-weight:700;
+
+    transition:.3s;
+
+}
+
+.gmail-btn{
+
+    background:linear-gradient(135deg,#00f2fe,#3b82f6);
+
+    color:white;
+}
+
+.gmail-btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 15px 30px rgba(0,242,254,.3);
+
+}
+
+.login-btn{
+
+    background:rgba(255,255,255,.05);
+
+    color:white;
+
+    border:1px solid rgba(255,255,255,.08);
+
+}
+
+.login-btn:hover{
+
+    background:rgba(255,255,255,.09);
+
+}
+
+@media(max-width:700px){
+
+.success-card{
+
+padding:28px;
+
+}
+
+.success-actions{
+
+flex-direction:column;
+
+}
+
+.success-title{
+
+font-size:1.6rem;
+
+}
+
+}
+
+/* ===========================================
+   SUCCESS CHECK ANIMATION
+===========================================*/
+
+.checkmark{
+
+width:72px;
+
+height:72px;
+
+}
+
+.checkmark-circle{
+
+stroke:#00f2fe;
+
+stroke-width:2;
+
+opacity:.25;
+
+}
+
+.checkmark-check{
+
+stroke:#00f2fe;
+
+stroke-width:4;
+
+stroke-linecap:round;
+
+stroke-linejoin:round;
+
+stroke-dasharray:50;
+
+stroke-dashoffset:50;
+
+animation:
+
+drawCheck .7s ease forwards,
+
+glowCheck 2.2s ease infinite .7s;
+
+}
+
+@keyframes drawCheck{
+
+to{
+
+stroke-dashoffset:0;
+
+}
+
+}
+
+@keyframes glowCheck{
+
+0%,100%{
+
+filter:drop-shadow(0 0 4px #00f2fe);
+
+}
+
+}
+
+@media(max-width:700px){
+
+.success-card{
+
+padding:28px;
+
+}
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="app-viewport" id="appViewport">
+    
+    <!-- Ambient Background Glow Effects -->
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <!-- Top Right Theme / Language Selector -->
+    <div class="top-controls">
+      <button class="control-btn" aria-label="Toggle theme">
+        <i data-lucide="sun" style="width:14px; height:14px;"></i>
+        <i data-lucide="moon" style="width:14px; height:14px; color:var(--cyan-glow);"></i>
+      </button>
+      <button class="control-btn" aria-label="Select Language">
+        <span>EN</span>
+        <i data-lucide="chevron-down" style="width:14px; height:14px; color:var(--text-muted);"></i>
+      </button>
+    </div>
+
+    <!-- Slide-in Toast Error Alert -->
+    <div class="toast-alert" id="toastAlert">
+      <i data-lucide="alert-triangle" style="width:16px; height:16px;"></i>
+      <span id="alertMessage">Invalid email or password.</span>
+    </div>
+
+    <!-- ==========================================================================
+       LEFT PANEL: VISUALIZATION & VERTICAL METRICS
+       ========================================================================== -->
+    <section class="left-panel">
+      
+      <!-- Brand Logo -->
+      <header class="anim-fade" style="transition-delay: 0.15s;">
+        <div class="brand-logo">
+          <div class="brand-ring"></div>
+          AURA
+        </div>
+      </header>
+
+      <!-- Hero Statement -->
+      <div class="hero-content">
+        <h1 class="hero-title anim-fade" style="transition-delay: 0.3s;">
+          More Health.<br>
+          More <span class="cyan-text">Aura.</span>
+        </h1>
+        <p class="hero-sub anim-fade" style="transition-delay: 0.45s;">The AI Wellness Operating System</p>
+        
+        <!-- Feature Pillars -->
+        <div class="pillars-row anim-fade" style="transition-delay: 0.6s;">
+          <div class="pillar-box">
+            <div class="pillar-icon-wrap"><i data-lucide="activity" style="width:18px;"></i></div>
+            <span>Monitor</span>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-icon-wrap"><i data-lucide="moon" style="width:18px;"></i></div>
+            <span>Recover</span>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-icon-wrap"><i data-lucide="trending-up" style="width:18px;"></i></div>
+            <span>Improve</span>
+          </div>
+          <div class="pillar-box">
+            <div class="pillar-icon-wrap"><i data-lucide="sparkles" style="width:18px;"></i></div>
+            <span>Thrive</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3D Orb Visual Centerpiece -->
+      <div class="orb-viewport-wrap anim-fade" style="transition-delay: 0.75s;">
+        <canvas id="orbCanvas"></canvas>
+      </div>
+
+      <!-- Vertical Metric Cards Grid -->
+      <div>
+        <div class="metrics-container">
+          
+          <!-- Heart Rate Card -->
+          <div class="metric-card-vertical card-heart anim-fade" style="transition-delay: 0.9s;">
+            <div>
+              <div class="icon-badge"><i data-lucide="heart" style="width:18px;"></i></div>
+              <div class="card-label">Heart Rate</div>
+              <div class="card-value" id="heartVal">72 <span class="card-unit">BPM</span></div>
+            </div>
+            <canvas class="chart-canvas" id="chartHeart"></canvas>
+          </div>
+
+          <!-- Sleep Card (Bar Chart Style as per image) -->
+          <div class="metric-card-vertical card-sleep anim-fade" style="transition-delay: 1.0s;">
+            <div>
+              <div class="icon-badge"><i data-lucide="moon" style="width:18px;"></i></div>
+              <div class="card-label">Sleep</div>
+              <div class="card-value">7<span class="card-unit">h</span> 45<span class="card-unit">m</span></div>
+            </div>
+            <canvas class="chart-canvas" id="chartSleep"></canvas>
+          </div>
+
+          <!-- Hydration Card -->
+          <div class="metric-card-vertical card-water anim-fade" style="transition-delay: 1.1s;">
+            <div>
+              <div class="icon-badge"><i data-lucide="droplet" style="width:18px;"></i></div>
+              <div class="card-label">Hydration</div>
+              <div class="card-value" id="waterVal">81<span class="card-unit">%</span></div>
+            </div>
+            <canvas class="chart-canvas" id="chartWater"></canvas>
+          </div>
+
+          <!-- Aura Score Card -->
+          <div class="metric-card-vertical card-aura anim-fade" style="transition-delay: 1.2s;">
+            <div>
+              <div class="icon-badge"><i data-lucide="flame" style="width:18px;"></i></div>
+              <div class="card-label">Aura Score</div>
+              <div class="card-value" id="auraVal">89</div>
+            </div>
+            <canvas class="chart-canvas" id="chartAura"></canvas>
+          </div>
+
+        </div>
+
+        <div class="quote-block anim-fade" style="transition-delay: 1.35s;">
+          <span class="quote-icon">“</span>
+          <span>Small daily choices. Extraordinary life.</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Bottom Wave Particle Mesh Canvas -->
+    <canvas id="waveCanvas"></canvas>
+
+    <!-- ==========================================================================
+       RIGHT PANEL: GLASSMORPHIC LOGIN CARD
+       ========================================================================== -->
+    <section class="right-panel">
+      <div class="login-glass-card anim-fade-right" style="transition-delay: 1.5s;">
+        
+        <div class="login-header">
+          <h2 class="login-title">Welcome Back</h2>
+          <p class="login-sub">Continue your wellness journey.</p>
+          <div class="glass-pill-bar"></div>
+        </div>
+
+        <form id="loginForm" onsubmit="executeAuth(event)">
+          
+          <!-- Email Input -->
+          <div class="form-group">
+            <label class="form-label" for="emailInput">Email Address</label>
+            <div class="input-field-wrap">
+              <i data-lucide="mail" class="field-icon" style="width:18px;"></i>
+              <input type="email" id="emailInput" class="input-control" placeholder="Enter your email" required autocomplete="email">
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="form-group">
+            <label class="form-label" for="passwordInput">Password</label>
+            <div class="input-field-wrap">
+              <i data-lucide="lock" class="field-icon" style="width:18px;"></i>
+              <input type="password" id="passwordInput" class="input-control" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="password-toggle-btn" id="togglePassword" aria-label="Toggle password">
+                <i data-lucide="eye" id="eyeIcon" style="width:18px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Options -->
+          <div class="options-row">
+            <label class="remember-check">
+              <input type="checkbox" id="rememberMe" checked>
+              <span class="custom-box"><i data-lucide="check" style="width:12px;"></i></span>
+              Remember Me
+            </label>
+            <a href="#"
+class="forgot-link"
+id="forgotPasswordLink">
+    Forgot Password?
+</a>
+</div>
+          <!-- Primary Submit Button -->
+          <button type="submit" class="btn-submit">
+            <span>Sign In</span>
+            <i data-lucide="arrow-right" style="width:18px;"></i>
+          </button>
+
+          <!-- Divider -->
+          <div class="or-divider">
+            <span>OR</span>
+          </div>
+
+          <!-- Secondary Button -->
+<button type="button" class="btn-create" onclick="window.location.href='registration.html'">
+    <i data-lucide="user-plus" style="width:18px;"></i>
+    <span>Create an Account</span>
+  </button>
+
+          <p class="legal-notice">
+            By continuing, you agree to our<br>
+            <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+          </p>
+
+        </form>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Loading Screen Overlay for Authentic State Switching -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="loading-pulse-ring"></div>
+    <div class="status-msg" id="statusMessage">Authenticating...</div>
+  </div>
+
+  <!-- ==========================================================================
+     8. JAVASCRIPT: REALISTIC CANVAS 3D ORB, CHARTS & AUTH
+     ========================================================================== -->
+     
+<!-- ==========================================================
+     FORGOT PASSWORD MODAL
+========================================================== -->
+
+<div id="forgotPasswordModal" class="success-modal">
+
+  <div class="success-card">
+
+      <div class="success-icon">
+
+          <i data-lucide="key-round"></i>
+
+      </div>
+
+      <h2 class="success-title">
+
+          RESET PASSWORD
+
+      </h2>
+
+      <p class="success-text">
+
+          Enter the email address associated with your Aura account.
+
+      </p>
+
+      <div style="margin:28px 0;">
+
+          <input
+              id="resetEmailInput"
+              type="email"
+              class="input-control"
+              placeholder="Enter your email">
+
+      </div>
+
+      <div class="success-actions">
+
+          <button
+              class="success-btn gmail-btn"
+              id="sendResetBtn">
+
+              Send Reset Link
+
+          </button>
+
+          <button
+              class="success-btn login-btn"
+              id="cancelResetBtn">
+
+              Cancel
+
+          </button>
+
+      </div>
+
+  </div>
+
+</div>
+
+<!-- Aura Configuration -->
+<script src="config.js"></script>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Create the shared client -->
+<script src="supabase.js"></script>
+
+<script>
+const db = window.supabaseClient;
+
+
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Trigger Initial Entry Animations
+    window.addEventListener('DOMContentLoaded', () => {
+      document.body.classList.add('loaded');
+      renderAllCharts();
+      initOrb3D();
+      initWaveMesh();
+      startHeartbeatSimulation();
+    });
+
+    // Toggle Password Visibility
+    const pwdInput = document.getElementById('passwordInput');
+    const toggleBtn = document.getElementById('togglePassword');
+    let pwdVisible = false;
+
+    toggleBtn.addEventListener('click', () => {
+      pwdVisible = !pwdVisible;
+      pwdInput.type = pwdVisible ? 'text' : 'password';
+      toggleBtn.innerHTML = pwdVisible 
+        ? '<i data-lucide="eye-off" style="width:18px;"></i>' 
+        : '<i data-lucide="eye" style="width:18px;"></i>';
+      lucide.createIcons();
+    });
+
+    // Toast Alert Trigger
+    let alertTimer;
+    function showAlert(msg) {
+      const toast = document.getElementById('toastAlert');
+      const text = document.getElementById('alertMessage');
+      text.innerText = msg;
+      toast.classList.add('active');
+      clearTimeout(alertTimer);
+      alertTimer = setTimeout(() => {
+        toast.classList.remove('active');
+      }, 4000);
+    }
+
+    // Auth Sequence Simulation
+    async function executeAuth(e){
+
+e.preventDefault();
+
+const overlay=document.getElementById("authOverlay");
+const status=document.getElementById("statusMessage");
+
+overlay.classList.add("active");
+status.innerText="Authenticating...";
+
+const email=document.getElementById("emailInput").value.trim();
+
+const password=document.getElementById("passwordInput").value;
+
+const {data,error}=await db.auth.signInWithPassword({
+
+    email,
+
+    password
+
+});
+
+if(error){
+
+    overlay.classList.remove("active");
+
+    showAlert(error.message);
+
+    return;
+
+}
+
+status.innerText="Loading profile...";
+
+const user=data.user;
+
+const {data:profile,error:profileError}=await db
+
+    .from("profiles")
+
+    .select("role")
+
+    .eq("id",user.id)
+
+    .single();
+
+overlay.classList.remove("active");
+
+if(profileError){
+
+    showAlert(profileError.message);
+
+    return;
+
+}
+
+if(profile.role==="admin"){
+
+    location.href="admin.html";
+
+}else{
+
+    location.href="dashboard.html";
+
+}
+
+}
+
+    /* ==========================================================================
+       9. REALISTIC 3D GLOWING ORB WITH ORBITAL RINGS
+       ========================================================================== */
+    function initOrb3D() {
+      const canvas = document.getElementById('orbCanvas');
+      const ctx = canvas.getContext('2d');
+      let w, h;
+
+      function resize() {
+        w = canvas.width = canvas.parentElement.clientWidth;
+        h = canvas.height = canvas.parentElement.clientHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const numParticles = 600;
+      const particles = [];
+      const radius = 115;
+
+      for (let i = 0; i < numParticles; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos((Math.random() * 2) - 1);
+        particles.push({
+          x: radius * Math.sin(phi) * Math.cos(theta),
+          y: radius * Math.sin(phi) * Math.sin(theta),
+          z: radius * Math.cos(phi),
+          color: Math.random() > 0.4 ? '#00f2fe' : (Math.random() > 0.5 ? '#7f00ff' : '#3b82f6')
+        });
+      }
+
+      let rotX = 0.002;
+      let rotY = 0.004;
+      let mouseX = 0, mouseY = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX - window.innerWidth / 2) * 0.00004;
+        mouseY = (e.clientY - window.innerHeight / 2) * 0.00004;
+      });
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        const cx = w / 2;
+        const cy = h / 2;
+
+        // Core Glowing Aura
+        const auraGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius * 1.35);
+        auraGrad.addColorStop(0, 'rgba(0, 242, 254, 0.4)');
+        auraGrad.addColorStop(0.4, 'rgba(59, 130, 246, 0.2)');
+        auraGrad.addColorStop(0.8, 'rgba(127, 0, 255, 0.1)');
+        auraGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotate & Render Particle Sphere
+        const cX = rotX + mouseY;
+        const cY = rotY + mouseX;
+
+        particles.forEach(p => {
+          let x1 = p.x * Math.cos(cY) - p.z * Math.sin(cY);
+          let z1 = p.z * Math.cos(cY) + p.x * Math.sin(cY);
+          let y1 = p.y * Math.cos(cX) - z1 * Math.sin(cX);
+          let z2 = z1 * Math.cos(cX) + p.y * Math.sin(cX);
+
+          p.x = x1; p.y = y1; p.z = z2;
+
+          const scale = 320 / (320 + p.z);
+          const px = p.x * scale + cx;
+          const py = p.y * scale + cy;
+          const pSize = Math.max(0.6, (p.z + radius) / (radius * 2) * 2.2);
+          const alpha = Math.max(0.15, (p.z + radius) / (radius * 2));
+
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.arc(px, py, pSize, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Outer Elliptical Orbital Rings
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = '#00f2fe';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, radius * 1.3, radius * 0.4, Math.PI / 5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.globalAlpha = 0.3;
+        ctx.strokeStyle = '#7f00ff';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, radius * 1.45, radius * 0.45, -Math.PI / 4, 0, Math.PI * 2);
+        ctx.stroke();
+
+        requestAnimationFrame(render);
+      }
+      render();
+    }
+
+    /* ==========================================================================
+       10. BOTTOM PARTICLES WAVE MESH
+       ========================================================================== */
+    function initWaveMesh() {
+      const canvas = document.getElementById('waveCanvas');
+      const ctx = canvas.getContext('2d');
+      let w, h;
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = 180;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      let offset = 0;
+      function drawWave() {
+        ctx.clearRect(0, 0, w, h);
+        offset += 0.012;
+
+        ctx.beginPath();
+        ctx.lineWidth = 1.5;
+        const grad = ctx.createLinearGradient(0, 0, w, 0);
+        grad.addColorStop(0, 'rgba(0, 242, 254, 0)');
+        grad.addColorStop(0.5, 'rgba(127, 0, 255, 0.45)');
+        grad.addColorStop(1, 'rgba(0, 242, 254, 0)');
+        ctx.strokeStyle = grad;
+
+        for (let x = 0; x < w; x += 15) {
+          const y = Math.sin(x * 0.006 + offset) * 20 + Math.cos(x * 0.004 + offset * 0.7) * 12 + (h / 1.5);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        requestAnimationFrame(drawWave);
+      }
+      drawWave();
+    }
+
+    /* ==========================================================================
+       11. REALISTIC CARD CHARTS (Smooth Lines & Vertical Bar Graph)
+       ========================================================================== */
+    function renderSparkline(canvasId, points, strokeColor, fillColor) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.parentElement.clientWidth;
+      const h = canvas.height = 36;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const min = Math.min(...points);
+      const max = Math.max(...points);
+      const range = (max - min) || 1;
+
+      // Fill Path
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const x = (i / (points.length - 1)) * w;
+        const y = h - ((p - min) / range) * (h - 8) - 4;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      if (fillColor) {
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.closePath();
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+      }
+    }
+
+    function renderBarChart(canvasId, values, barColor) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.parentElement.clientWidth;
+      const h = canvas.height = 36;
+
+      ctx.clearRect(0, 0, w, h);
+      const barWidth = 4;
+      const gap = (w - (values.length * barWidth)) / (values.length - 1);
+
+      const max = Math.max(...values);
+
+      values.forEach((val, i) => {
+        const barHeight = (val / max) * (h - 6);
+        const x = i * (barWidth + gap);
+        const y = h - barHeight;
+
+        ctx.fillStyle = barColor;
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth, barHeight, 2);
+        ctx.fill();
+      });
+    }
+
+    function renderAllCharts() {
+      // Heart Rate Sparkline
+      renderSparkline('chartHeart', [68, 72, 70, 75, 71, 74, 72], '#00f2fe');
+
+      // Sleep Bar Graph (Matches screenshot exactly)
+      renderBarChart('chartSleep', [40, 65, 30, 80, 95, 60, 85, 50, 70, 90], '#7f00ff');
+
+      // Hydration Curve
+      renderSparkline('chartWater', [50, 58, 62, 70, 75, 81], '#3b82f6');
+
+      // Aura Score Curve
+      renderSparkline('chartAura', [72, 75, 80, 84, 87, 89], '#f59e0b');
+    }
+
+    function startHeartbeatSimulation() {
+      setInterval(() => {
+        const heartEl = document.getElementById('heartVal');
+        if (heartEl) {
+          const bpm = 71 + Math.floor(Math.random() * 4);
+          heartEl.innerHTML = `${bpm} <span class="card-unit">BPM</span>`;
+        }
+      }, 3500);
+    }
+
+    async function checkSession(){
+      if (window.location.search.includes("devlogin")) {
+    return;
+}
+const {data}=await db.auth.getSession();
+
+if(!data.session){
+
+    return;
+
+}
+
+const user=data.session.user;
+
+const {data:profile}=await db
+
+    .from("profiles")
+
+    .select("role")
+
+    .eq("id",user.id)
+
+    .single();
+
+if(profile.role==="admin"){
+
+    location.href="admin.html";
+
+}
+
+else{
+
+    location.href="dashboard.html";
+
+}
+
+}
+
+checkSession();
+
+// ==========================================
+// FORGOT PASSWORD MODAL
+// ==========================================
+
+const forgotModal = document.getElementById("forgotPasswordModal");
+
+const forgotLink = document.getElementById("forgotPasswordLink");
+
+const cancelResetBtn = document.getElementById("cancelResetBtn");
+
+// ==========================================
+// SEND PASSWORD RESET EMAIL
+// ==========================================
+
+document.getElementById("sendResetBtn").addEventListener("click", async () => {
+
+const email = document
+    .getElementById("resetEmailInput")
+    .value
+    .trim();
+
+if (!email) {
+
+    showToast("Please enter your email address.");
+
+    return;
+
+}
+
+const { error } = await db.auth.resetPasswordForEmail(email, {
+
+    redirectTo: "http://localhost:3000/reset-password.html"
+
+});
+
+if (error) {
+
+console.error(error);
+
+alert(error.message);
+
+return;
+
+}
+
+alert(
+`✅ Password reset email sent!
+
+Please check:
+
+${email}
+
+and click the reset link.`
+);
+
+forgotModal.classList.remove("show");
+
+});
+
+forgotLink.addEventListener("click", (e) => {
+
+    e.preventDefault();
+
+    forgotModal.classList.add("show");
+
+});
+
+cancelResetBtn.addEventListener("click", () => {
+
+forgotModal.classList.remove("show");
+
+});
+
+document.addEventListener("keydown", (e) => {
+
+if (e.key === "Escape") {
+
+    forgotModal.classList.remove("show");
+
+}
+
+});
+
+
+
+  </script>
+</body>
+</html>

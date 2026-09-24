@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-[#050302] text-[#F5F2EB]">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALLURA | Haute Chocolaterie & Rare Cacao</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- GSAP, ScrollTrigger & Lenis Smooth Scroll -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              black: '#050302',
+              espresso: '#0D0806',
+              charcoal: '#160E0B',
+              bronze: '#2A1A14',
+              gold: '#D4AF37',
+              'gold-light': '#F3E5AB',
+              'gold-metallic': '#E5C158',
+              'gold-dark': '#8C6D1F',
+              cream: '#F7F3EB',
+              muted: '#A39990',
+            }
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'serif'],
+            cinzel: ['"Cinzel"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #050302; }
+    ::-webkit-scrollbar-thumb { background: #2A1A14; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+    /* Glassmorphism & Gold Shimmers */
+    .glass-nav {
+      background: rgba(5, 3, 2, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+    }
+    .glass-card {
+      background: linear-gradient(135deg, rgba(22, 14, 11, 0.6) 0%, rgba(13, 8, 6, 0.85) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(212, 175, 55, 0.14);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      transition: border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(212, 175, 55, 0.45);
+      box-shadow: 0 30px 60px -12px rgba(212, 175, 55, 0.12);
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FFF8DC 0%, #E5C158 50%, #997B1A 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    /* 3D Perspective Containers */
+    .tilt-card {
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+    .tilt-inner {
+      transition: transform 0.2s ease-out;
+    }
+
+    /* Shimmer Border */
+    .gold-shimmer-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .gold-shimmer-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        transparent,
+        rgba(255, 255, 255, 0.25),
+        transparent
+      );
+      transform: rotate(30deg) translateY(-100%);
+      transition: transform 0.75s ease-in-out;
+    }
+    .gold-shimmer-btn:hover::after {
+      transform: rotate(30deg) translateY(100%);
+    }
+  </style>
+</head>
+<body class="selection:bg-brand-gold selection:text-brand-black overflow-x-hidden">
+
+  <!-- Background Ambient Glow & Live Canvas Particles -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.07)_0%,transparent_70%)] blur-3xl"></div>
+    <div class="absolute top-1/2 -left-40 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(140,109,31,0.05)_0%,transparent_70%)] blur-3xl"></div>
+    <canvas id="ambient-canvas" class="w-full h-full opacity-40"></canvas>
+  </div>
+
+  <!-- ==================== LUXURY NAVIGATION ==================== -->
+  <header class="fixed top-0 left-0 w-full z-50 glass-nav transition-all duration-500" id="navbar">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 h-24 flex items-center justify-between">
+      <!-- Left Navigation -->
+      <nav class="hidden md:flex items-center space-x-10 text-[11px] tracking-[0.3em] uppercase font-medium">
+        <a href="#sec-terroir" class="text-brand-cream/70 hover:text-brand-gold transition-colors duration-300">Terroir</a>
+        <a href="#sec-vault" class="text-brand-cream/70 hover:text-brand-gold transition-colors duration-300">Grand Crus</a>
+        <a href="#sec-alchemy" class="text-brand-cream/70 hover:text-brand-gold transition-colors duration-300">Alchemy</a>
+      </nav>
+
+      <!-- Center Brand Logo -->
+      <a href="#sec-hero" class="flex flex-col items-center group">
+        <span class="font-cinzel text-2xl md:text-3xl tracking-[0.35em] gold-gradient-text uppercase font-normal">Allura</span>
+        <span class="text-[8px] tracking-[0.5em] text-brand-gold/60 -mt-1 uppercase">Haute Chocolaterie</span>
+      </a>
+
+      <!-- Right Actions -->
+      <div class="flex items-center space-x-6">
+        <a href="#sec-reserve" class="hidden sm:inline-flex items-center justify-center px-7 py-2.5 text-[10px] uppercase tracking-[0.25em] font-semibold border border-brand-gold/40 text-brand-gold hover:bg-brand-gold hover:text-brand-black transition-all duration-500 rounded-full hover:shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+          Private Client
+        </a>
+        <button id="cart-toggle" class="relative p-2 text-brand-cream/80 hover:text-brand-gold transition-colors" aria-label="Open Tasting Drawer">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span id="cart-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-brand-gold text-brand-black text-[9px] font-bold rounded-full flex items-center justify-center scale-0 transition-transform duration-300">0</span>
+        </button>
+        <button id="menu-btn" class="md:hidden text-brand-cream focus:outline-none" aria-label="Toggle Menu">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-brand-black/98 backdrop-blur-3xl z-40 hidden flex-col justify-center items-center space-y-8 text-center md:hidden">
+      <button id="close-menu" class="absolute top-8 right-8 text-brand-cream/70 hover:text-brand-gold">
+        <i data-lucide="x" class="w-8 h-8"></i>
+      </button>
+      <a href="#sec-terroir" class="mobile-nav-link text-3xl font-serif text-brand-cream hover:text-brand-gold uppercase tracking-widest">Terroir</a>
+      <a href="#sec-vault" class="mobile-nav-link text-3xl font-serif text-brand-cream hover:text-brand-gold uppercase tracking-widest">Grand Crus</a>
+      <a href="#sec-alchemy" class="mobile-nav-link text-3xl font-serif text-brand-cream hover:text-brand-gold uppercase tracking-widest">Alchemy</a>
+      <a href="#sec-reserve" class="mobile-nav-link text-3xl font-serif text-brand-cream hover:text-brand-gold uppercase tracking-widest">Private Reserve</a>
+    </div>
+  </header>
+
+  <!-- ==================== SECTION 1: THE THRESHOLD (HERO) ==================== -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-16 z-10" id="sec-hero">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+        <div class="hero-anim">
+          <div class="inline-flex items-center space-x-3 px-4 py-1.5 rounded-full border border-brand-gold/30 bg-brand-espresso/80 text-[10px] tracking-[0.3em] text-brand-gold uppercase">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-gold animate-ping"></span>
+            <span>Single Estate Vintage • 0.01% Heirloom Pure</span>
+          </div>
+        </div>
+
+        <div class="overflow-hidden">
+          <h1 class="hero-title font-serif text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-normal leading-[1.03] tracking-tight">
+            The Alchemy of <br />
+            <span class="gold-gradient-text italic font-light">Forbidden Cacao.</span>
+          </h1>
+        </div>
+
+        <p class="hero-anim text-brand-muted text-base sm:text-lg md:text-xl font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
+          Harvested from 120-year-old pre-extinction Nacional trees in cloud-shrouded Andean valleys. Conched on Swiss granite for 72 continuous hours and adorned in 24-karat Florentine gold leaf.
+        </p>
+
+        <div class="hero-anim flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-5 pt-4">
+          <a href="#sec-vault" class="gold-shimmer-btn w-full sm:w-auto px-9 py-4 bg-gradient-to-r from-[#D4AF37] via-[#E5C158] to-[#997B1A] text-brand-black text-[11px] uppercase tracking-[0.25em] font-bold rounded-full hover:shadow-[0_0_35px_rgba(212,175,55,0.45)] transition-all duration-300">
+            Acquire Grand Crus
+          </a>
+          <a href="#sec-alchemy" class="w-full sm:w-auto px-9 py-4 border border-brand-gold/30 text-brand-cream text-[11px] uppercase tracking-[0.25em] font-medium rounded-full hover:border-brand-gold hover:text-brand-gold transition-all duration-300">
+            Witness Alchemy
+          </a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 relative flex items-center justify-center hero-img-wrap">
+        <div class="tilt-card relative w-full max-w-[440px] aspect-[4/5] rounded-[32px] overflow-hidden glass-card p-3 shadow-[0_20px_80px_rgba(0,0,0,0.9)]">
+          <div class="tilt-inner w-full h-full rounded-[26px] overflow-hidden relative group">
+            <img 
+              id="hero-img"
+              src="https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&w=1400&q=90" 
+              alt="Allura Luxury Chocolate Truffle with Gold Dust" 
+              class="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-black/95 via-brand-black/20 to-transparent"></div>
+            
+            <div class="absolute bottom-6 left-6 right-6 p-6 glass-card rounded-2xl border border-brand-gold/30">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[9px] uppercase tracking-[0.35em] text-brand-gold font-semibold">Reserve N° 07</span>
+                <span class="text-[10px] text-brand-gold/80 font-mono">100% TRACEABLE</span>
+              </div>
+              <h4 class="font-serif text-2xl text-brand-cream font-normal">Nacional Gold Ganache</h4>
+              <p class="text-xs text-brand-muted mt-1 leading-relaxed">Smoked salt crystal, Andean mountain wild vanilla & 24K Florentine leaf.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center space-y-2 opacity-60">
+      <span class="text-[8px] uppercase tracking-[0.35em] text-brand-gold">Discover</span>
+      <div class="w-4 h-7 rounded-full border border-brand-gold/40 flex items-start justify-center p-1">
+        <div class="w-1 h-2 bg-brand-gold rounded-full animate-bounce"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 2: THE TERROIR & LINEAGE ==================== -->
+  <section class="py-36 relative bg-brand-espresso/40 border-y border-brand-gold/10" id="sec-terroir">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      
+      <div class="text-center max-w-3xl mx-auto mb-24">
+        <span class="text-[10px] uppercase tracking-[0.4em] text-brand-gold font-semibold">Provenance & Lineage</span>
+        <h2 class="font-serif text-4xl sm:text-5xl md:text-6xl mt-4 leading-tight">Born in the Valley of Mist</h2>
+        <p class="text-brand-muted mt-6 text-base sm:text-lg leading-relaxed font-light">
+          In 1916, a devastating blight was thought to have extinguished pure-bred Arriba Nacional cacao forever. In 2014, deep within a secluded cloud valley in Ecuador, 14 ancient mother trees were verified intact via DNA fingerprinting.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="glass-card p-10 rounded-3xl relative overflow-hidden group origin-card hover:-translate-y-2">
+          <div class="text-brand-gold/10 font-cinzel text-8xl font-bold absolute -top-4 -right-4 transition-transform duration-500 group-hover:scale-110">01</div>
+          <div class="w-12 h-12 rounded-2xl bg-brand-gold/10 border border-brand-gold/30 flex items-center justify-center text-brand-gold mb-8">
+            <i data-lucide="mountain" class="w-6 h-6"></i>
+          </div>
+          <h3 class="font-serif text-2xl text-brand-cream mb-3">Piedra de Plata</h3>
+          <p class="text-sm text-brand-muted leading-relaxed font-light">Isolated micro-valley at 4,200 ft elevation with mineral volcanic ash soil and continuous pacific cloud humidity.</p>
+        </div>
+
+        <div class="glass-card p-10 rounded-3xl relative overflow-hidden group origin-card hover:-translate-y-2">
+          <div class="text-brand-gold/10 font-cinzel text-8xl font-bold absolute -top-4 -right-4 transition-transform duration-500 group-hover:scale-110">02</div>
+          <div class="w-12 h-12 rounded-2xl bg-brand-gold/10 border border-brand-gold/30 flex items-center justify-center text-brand-gold mb-8">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <h3 class="font-serif text-2xl text-brand-cream mb-3">DNA Verified</h3>
+          <p class="text-sm text-brand-muted leading-relaxed font-light">Zero hybridization. 100% heirloom genotype verified by the Cacao Genetics Consortium in Montpellier.</p>
+        </div>
+
+        <div class="glass-card p-10 rounded-3xl relative overflow-hidden group origin-card hover:-translate-y-2">
+          <div class="text-brand-gold/10 font-cinzel text-8xl font-bold absolute -top-4 -right-4 transition-transform duration-500 group-hover:scale-110">03</div>
+          <div class="w-12 h-12 rounded-2xl bg-brand-gold/10 border border-brand-gold/30 flex items-center justify-center text-brand-gold mb-8">
+            <i data-lucide="gem" class="w-6 h-6"></i>
+          </div>
+          <h3 class="font-serif text-2xl text-brand-cream mb-3">Solar Limitation</h3>
+          <p class="text-sm text-brand-muted leading-relaxed font-light">Only 600 hand-numbered wooden coffrets released each harvest. Allocated via private client registry.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 3: THE GRAND CRU VAULT ==================== -->
+  <section class="py-36 relative" id="sec-vault">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-6">
+        <div>
+          <span class="text-[10px] uppercase tracking-[0.4em] text-brand-gold font-semibold">The Permanent Collection</span>
+          <h2 class="font-serif text-4xl sm:text-5xl md:text-6xl mt-4 leading-tight">The Grand Cru Vault</h2>
+        </div>
+        <p class="text-brand-muted max-w-md text-sm leading-relaxed font-light">
+          Each bar is individually sealed within oxygen-free dark violet glass and protected inside an engraved Spanish cedar box.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Product 1 -->
+        <div class="product-card glass-card rounded-3xl overflow-hidden flex flex-col justify-between group">
+          <div class="relative aspect-[4/3] overflow-hidden bg-brand-charcoal">
+            <img 
+              src="https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&w=800&q=85" 
+              alt="Nocturne Imperial Bar" 
+              class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-black/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 right-4 bg-brand-black/90 backdrop-blur-md px-3.5 py-1 rounded-full text-[9px] tracking-widest text-brand-gold uppercase border border-brand-gold/30">88% Cru</span>
+          </div>
+          
+          <div class="p-8 flex-1 flex flex-col justify-between space-y-6">
+            <div>
+              <div class="flex justify-between items-baseline mb-2">
+                <h3 class="font-serif text-2xl text-brand-cream group-hover:text-brand-gold transition-colors">Nocturne Imperial</h3>
+                <span class="font-serif text-2xl text-brand-gold">$120</span>
+              </div>
+              <p class="text-xs text-brand-muted leading-relaxed">Aged 180 days with dried black mission figs, winter black truffles, and aged tobacco leaf aromatics.</p>
+            </div>
+            
+            <button onclick="addToCart('Nocturne Imperial', 120)" class="gold-shimmer-btn w-full py-3.5 border border-brand-gold/40 hover:border-brand-gold bg-brand-gold/5 hover:bg-brand-gold hover:text-brand-black text-brand-gold text-[10px] uppercase tracking-[0.25em] font-bold rounded-2xl transition-all duration-300 flex items-center justify-center space-x-2">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Acquire Vintage</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 2 -->
+        <div class="product-card glass-card rounded-3xl overflow-hidden flex flex-col justify-between group">
+          <div class="relative aspect-[4/3] overflow-hidden bg-brand-charcoal">
+            <img 
+              src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=800&q=85" 
+              alt="Soleil D'Or Cask" 
+              class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-black/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 right-4 bg-brand-black/90 backdrop-blur-md px-3.5 py-1 rounded-full text-[9px] tracking-widest text-brand-gold uppercase border border-brand-gold/30">75% Cognac Cask</span>
+          </div>
+          
+          <div class="p-8 flex-1 flex flex-col justify-between space-y-6">
+            <div>
+              <div class="flex justify-between items-baseline mb-2">
+                <h3 class="font-serif text-2xl text-brand-cream group-hover:text-brand-gold transition-colors">Soleil D'Or Cask</h3>
+                <span class="font-serif text-2xl text-brand-gold">$145</span>
+              </div>
+              <p class="text-xs text-brand-muted leading-relaxed">Matured in 50-year-old Armagnac casks. Infused with Kashmiri saffron pistils and fleur de sel.</p>
+            </div>
+            
+            <button onclick="addToCart('Soleil D\'Or Cask', 145)" class="gold-shimmer-btn w-full py-3.5 border border-brand-gold/40 hover:border-brand-gold bg-brand-gold/5 hover:bg-brand-gold hover:text-brand-black text-brand-gold text-[10px] uppercase tracking-[0.25em] font-bold rounded-2xl transition-all duration-300 flex items-center justify-center space-x-2">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Acquire Vintage</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 3 -->
+        <div class="product-card glass-card rounded-3xl overflow-hidden flex flex-col justify-between group">
+          <div class="relative aspect-[4/3] overflow-hidden bg-brand-charcoal">
+            <img 
+              src="https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=800&q=85" 
+              alt="L'Éclipse Truffles" 
+              class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-black/80 via-transparent to-transparent"></div>
+            <span class="absolute top-4 right-4 bg-brand-black/90 backdrop-blur-md px-3.5 py-1 rounded-full text-[9px] tracking-widest text-brand-gold uppercase border border-brand-gold/30">Private Reserve</span>
+          </div>
+          
+          <div class="p-8 flex-1 flex flex-col justify-between space-y-6">
+            <div>
+              <div class="flex justify-between items-baseline mb-2">
+                <h3 class="font-serif text-2xl text-brand-cream group-hover:text-brand-gold transition-colors">L'Éclipse Truffles (12pc)</h3>
+                <span class="font-serif text-2xl text-brand-gold">$260</span>
+              </div>
+              <p class="text-xs text-brand-muted leading-relaxed">Twelve spherical ganaches hand-rolled in smoked Piedmont hazelnut praline and 24K gold foil.</p>
+            </div>
+            
+            <button onclick="addToCart('L\'Éclipse Truffles', 260)" class="gold-shimmer-btn w-full py-3.5 border border-brand-gold/40 hover:border-brand-gold bg-brand-gold/5 hover:bg-brand-gold hover:text-brand-black text-brand-gold text-[10px] uppercase tracking-[0.25em] font-bold rounded-2xl transition-all duration-300 flex items-center justify-center space-x-2">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Acquire Vintage</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 4: THE SACRED ALCHEMY (PINNED) ==================== -->
+  <section class="relative bg-brand-black" id="sec-alchemy">
+    <div class="pin-container h-screen flex flex-col justify-center overflow-hidden">
+      
+      <div class="max-w-7xl mx-auto px-6 lg:px-12 w-full mb-8 flex justify-between items-end">
+        <div>
+          <span class="text-[10px] uppercase tracking-[0.4em] text-brand-gold font-semibold">The Sacred Metamorphosis</span>
+          <h2 class="font-serif text-4xl sm:text-5xl mt-2">The Alchemy Process</h2>
+        </div>
+        <div class="hidden sm:flex items-center space-x-2 text-brand-muted text-xs uppercase tracking-widest">
+          <span>Horizontal Scrub</span>
+          <i data-lucide="arrow-right" class="w-4 h-4 text-brand-gold"></i>
+        </div>
+      </div>
+
+      <div class="horizontal-track flex space-x-8 pl-6 lg:pl-12 w-max items-center">
+        
+        <!-- Step 1 -->
+        <div class="process-card w-[80vw] sm:w-[480px] glass-card p-8 sm:p-10 rounded-3xl flex flex-col justify-between shrink-0">
+          <div class="aspect-[16/9] rounded-2xl overflow-hidden mb-6 relative">
+            <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80" alt="Fermentation" class="w-full h-full object-cover" />
+            <span class="absolute top-3 left-3 bg-brand-black/80 px-3 py-1 rounded-full text-[10px] font-mono text-brand-gold border border-brand-gold/30">STAGE 01</span>
+          </div>
+          <div>
+            <h3 class="font-serif text-2xl text-brand-cream">Wild Banana Leaf Ferment</h3>
+            <p class="text-xs sm:text-sm text-brand-muted mt-2 leading-relaxed">Fermented for 144 hours in native Spanish Elm cases beneath fresh jungle banana leaves to develop delicate jasmine notes.</p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="process-card w-[80vw] sm:w-[480px] glass-card p-8 sm:p-10 rounded-3xl flex flex-col justify-between shrink-0">
+          <div class="aspect-[16/9] rounded-2xl overflow-hidden mb-6 relative">
+            <img src="https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&w=800&q=80" alt="Conching" class="w-full h-full object-cover" />
+            <span class="absolute top-3 left-3 bg-brand-black/80 px-3 py-1 rounded-full text-[10px] font-mono text-brand-gold border border-brand-gold/30">STAGE 02</span>
+          </div>
+          <div>
+            <h3 class="font-serif text-2xl text-brand-cream">Granite Stone Conching</h3>
+            <p class="text-xs sm:text-sm text-brand-muted mt-2 leading-relaxed">Cru crushed down to an extraordinary 10-micron fineness under Swiss granite stones for 72 uninterrupted hours.</p>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="process-card w-[80vw] sm:w-[480px] glass-card p-8 sm:p-10 rounded-3xl flex flex-col justify-between shrink-0">
+          <div class="aspect-[16/9] rounded-2xl overflow-hidden mb-6 relative">
+            <img src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=800&q=80" alt="Cognac Barrel Aging" class="w-full h-full object-cover" />
+            <span class="absolute top-3 left-3 bg-brand-black/80 px-3 py-1 rounded-full text-[10px] font-mono text-brand-gold border border-brand-gold/30">STAGE 03</span>
+          </div>
+          <div>
+            <h3 class="font-serif text-2xl text-brand-cream">XO Cognac Cask Aging</h3>
+            <p class="text-xs sm:text-sm text-brand-muted mt-2 leading-relaxed">Unpoured chocolate blocks rest for 180 days in virgin French oak barrels previously used to age 50-year Grande Champagne Cognac.</p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="process-card w-[80vw] sm:w-[480px] glass-card p-8 sm:p-10 rounded-3xl flex flex-col justify-between shrink-0">
+          <div class="aspect-[16/9] rounded-2xl overflow-hidden mb-6 relative">
+            <img src="https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=800&q=80" alt="Gold Leaf Application" class="w-full h-full object-cover" />
+            <span class="absolute top-3 left-3 bg-brand-black/80 px-3 py-1 rounded-full text-[10px] font-mono text-brand-gold border border-brand-gold/30">STAGE 04</span>
+          </div>
+          <div>
+            <h3 class="font-serif text-2xl text-brand-cream">Florentine 24K Gilding</h3>
+            <p class="text-xs sm:text-sm text-brand-muted mt-2 leading-relaxed">Hand-gilded in our Zurich atelier using authentic Giusto Manetti Battiloro 24-karat gold leaves.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== SECTION 5: PRIVATE RESERVE & CONCIERGE ==================== -->
+  <section class="py-36 relative bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.12)_0%,transparent_70%)]" id="sec-reserve">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      
+      <div class="glass-card p-10 sm:p-20 rounded-[40px] border border-brand-gold/40 relative overflow-hidden">
+        <div class="absolute -right-24 -top-24 w-80 h-80 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <span class="text-[10px] uppercase tracking-[0.4em] text-brand-gold font-bold">Concierge Allocations</span>
+        <h2 class="font-serif text-4xl sm:text-5xl md:text-6xl mt-4 mb-6 leading-tight">Request Your Personal Harvest</h2>
+        <p class="text-brand-muted text-sm sm:text-base leading-relaxed max-w-xl mx-auto mb-10 font-light">
+          Commission a personalized wooden vintage coffret, private tasting flights, or private event allocations directly with our Maître Chocolatier.
+        </p>
+
+        <form onsubmit="handleInquiry(event)" class="max-w-md mx-auto space-y-4">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input 
+              type="email" 
+              required 
+              placeholder="Your VIP client email" 
+              class="flex-1 bg-brand-black/80 border border-brand-gold/30 rounded-full px-7 py-4 text-sm text-brand-cream placeholder:text-brand-muted/60 focus:outline-none focus:border-brand-gold"
+            />
+            <button 
+              type="submit" 
+              class="gold-shimmer-btn px-9 py-4 bg-brand-gold text-brand-black text-[11px] uppercase tracking-[0.25em] font-bold rounded-full hover:bg-brand-gold-light hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all duration-300"
+            >
+              Apply
+            </button>
+          </div>
+          <p id="inquiry-msg" class="text-xs text-brand-gold tracking-widest uppercase hidden pt-2 font-mono">Private concierge invitation dispatched.</p>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="py-24 border-t border-brand-gold/15 bg-brand-black text-xs text-brand-muted">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center gap-10">
+      <div class="flex flex-col items-center md:items-start">
+        <span class="font-cinzel text-3xl tracking-[0.35em] gold-gradient-text uppercase font-normal">Allura</span>
+        <p class="mt-2 text-[10px] tracking-[0.3em] text-brand-muted uppercase">Zürich • Quito • Paris</p>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-8 tracking-widest uppercase text-[10px]">
+        <a href="#" class="hover:text-brand-gold transition-colors">Heirloom Registry</a>
+        <a href="#" class="hover:text-brand-gold transition-colors">Private Vault Portal</a>
+        <a href="#" class="hover:text-brand-gold transition-colors">Certificat d'Origine</a>
+      </div>
+
+      <p class="text-[10px] text-brand-muted/60">
+        © 2026 ALLURA Haute Chocolaterie S.A.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ==================== TASTING CART DRAWER ==================== -->
+  <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-brand-espresso border-l border-brand-gold/30 shadow-2xl z-50 transform translate-x-full transition-transform duration-500 flex flex-col">
+    <div class="p-8 border-b border-brand-gold/15 flex justify-between items-center">
+      <div>
+        <h3 class="font-serif text-3xl text-brand-cream font-normal">Your Selection</h3>
+        <p class="text-[10px] text-brand-gold uppercase tracking-[0.3em] mt-1 font-semibold">Reserved Harvest Allotment</p>
+      </div>
+      <button id="cart-close" class="text-brand-muted hover:text-brand-gold p-2" aria-label="Close Cart">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
+
+    <div class="p-8 border-t border-brand-gold/15 bg-brand-black/60 space-y-5">
+      <div class="flex justify-between items-center text-sm">
+        <span class="text-brand-muted uppercase tracking-widest text-xs">Total Allocation</span>
+        <span id="cart-total" class="font-serif text-3xl text-brand-gold">$0</span>
+      </div>
+      <button class="w-full py-4 bg-gradient-to-r from-[#D4AF37] via-[#E5C158] to-[#997B1A] text-brand-black text-[11px] uppercase tracking-[0.25em] font-bold rounded-full hover:shadow-[0_0_35px_rgba(212,175,55,0.4)] transition-all duration-300">
+        Complete Acquisition
+      </button>
+    </div>
+  </div>
+
+  <div id="cart-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-md z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
+  <!-- ==================== GSAP & INTERACTIVITY SCRIPT ==================== -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // 1. Lenis Smooth Scroll Setup
+    const lenis = new Lenis({
+      duration: 1.3,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      smoothWheel: true
+    });
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // 2. 3D Parallax Tilt Effect on Hero Card
+    const tiltCard = document.querySelector('.tilt-card');
+    const tiltInner = document.querySelector('.tilt-inner');
+    if (tiltCard && tiltInner) {
+      tiltCard.addEventListener('mousemove', (e) => {
+        const rect = tiltCard.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        tiltInner.style.transform = `rotateY(${x * 0.04}deg) rotateX(${-y * 0.04}deg)`;
+      });
+      tiltCard.addEventListener('mouseleave', () => {
+        tiltInner.style.transform = `rotateY(0deg) rotateX(0deg)`;
+      });
+    }
+
+    // 3. Ambient Gold Particles Canvas
+    const canvas = document.getElementById('ambient-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        speedY: Math.random() * 0.3 + 0.1,
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#D4AF37';
+      particles.forEach((p) => {
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        p.y -= p.speedY;
+        if (p.y < 0) p.y = canvas.height;
+      });
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    // 4. GSAP ScrollTrigger Animations
+    gsap.registerPlugin(ScrollTrigger);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Hero Animation Timeline
+      const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+      heroTl
+        .from('.hero-anim', { y: 40, opacity: 0, duration: 1.2, stagger: 0.15 })
+        .from('.hero-title', { y: 80, opacity: 0, duration: 1.5 }, '-=1')
+        .from('.hero-img-wrap', { scale: 0.9, opacity: 0, duration: 1.6 }, '-=1.2');
+
+      // Origins Stagger
+      gsap.from('.origin-card', {
+        scrollTrigger: { trigger: '#sec-terroir', start: 'top 75%' },
+        y: 60,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.2,
+        ease: 'power3.out'
+      });
+
+      // Product Cards Stagger
+      gsap.from('.product-card', {
+        scrollTrigger: { trigger: '#sec-vault', start: 'top 75%' },
+        y: 70,
+        opacity: 0,
+        duration: 1.2,
+        stagger: 0.2,
+        ease: 'power3.out'
+      });
+
+      // Horizontal Scroll Section (Pinned)
+      const track = document.querySelector('.horizontal-track');
+      if (track) {
+        gsap.to(track, {
+          x: () => -(track.scrollWidth - window.innerWidth + 120),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#sec-alchemy',
+            start: 'top top',
+            end: () => `+=${track.scrollWidth}`,
+            scrub: 1,
+            pin: true,
+            anticipatePin: 1
+          }
+        });
+      }
+    });
+
+    // 5. Tasting Cart & Drawer Logic
+    let cart = [];
+    const cartToggle = document.getElementById('cart-toggle');
+    const cartClose = document.getElementById('cart-close');
+    const cartDrawer = document.getElementById('cart-drawer');
+    const cartBackdrop = document.getElementById('cart-backdrop');
+    const cartBadge = document.getElementById('cart-badge');
+    const cartItems = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+
+    function toggleCart(open) {
+      if (open) {
+        cartDrawer.classList.remove('translate-x-full');
+        cartBackdrop.classList.remove('hidden');
+        setTimeout(() => cartBackdrop.classList.remove('opacity-0'), 10);
+      } else {
+        cartDrawer.classList.add('translate-x-full');
+        cartBackdrop.classList.add('opacity-0');
+        setTimeout(() => cartBackdrop.classList.add('hidden'), 300);
+      }
+    }
+
+    cartToggle.addEventListener('click', () => toggleCart(true));
+    cartClose.addEventListener('click', () => toggleCart(false));
+    cartBackdrop.addEventListener('click', () => toggleCart(false));
+
+    function addToCart(name, price) {
+      cart.push({ id: Date.now(), name, price });
+      renderCart();
+      toggleCart(true);
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(item => item.id !== id);
+      renderCart();
+    }
+
+    function renderCart() {
+      if (cart.length > 0) {
+        cartBadge.textContent = cart.length;
+        cartBadge.classList.remove('scale-0');
+      } else {
+        cartBadge.classList.add('scale-0');
+      }
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = `
+          <div class="text-center py-20 text-brand-muted">
+            <i data-lucide="package-open" class="w-12 h-12 mx-auto mb-3 opacity-40 text-brand-gold"></i>
+            <p class="font-serif text-xl">No allocation chosen.</p>
+            <p class="text-xs mt-1">Select from our rare Grand Cru vault.</p>
+          </div>
+        `;
+        cartTotal.textContent = '$0';
+      } else {
+        let total = 0;
+        cartItems.innerHTML = cart.map(item => {
+          total += item.price;
+          return `
+            <div class="flex justify-between items-center p-5 rounded-2xl bg-brand-charcoal/80 border border-brand-gold/20">
+              <div>
+                <h5 class="font-serif text-lg text-brand-cream">${item.name}</h5>
+                <span class="text-xs text-brand-gold font-medium">$${item.price}</span>
+              </div>
+              <button onclick="removeFromCart(${item.id})" class="text-brand-muted hover:text-red-400 p-2" aria-label="Remove item">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `;
+        }).join('');
+        cartTotal.textContent = `$${total}`;
+      }
+      lucide.createIcons();
+    }
+
+    // 6. Mobile Navigation
+    const menuBtn = document.getElementById('menu-btn');
+    const closeMenu = document.getElementById('close-menu');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.remove('hidden');
+      mobileMenu.classList.add('flex');
+    });
+
+    const closeNav = () => {
+      mobileMenu.classList.add('hidden');
+      mobileMenu.classList.remove('flex');
+    };
+
+    closeMenu.addEventListener('click', closeNav);
+    mobileLinks.forEach(link => link.addEventListener('click', closeNav));
+
+    // 7. Concierge Form Handler
+    function handleInquiry(e) {
+      e.preventDefault();
+      const msg = document.getElementById('inquiry-msg');
+      msg.classList.remove('hidden');
+      e.target.reset();
+    }
+  </script>
+</body>
+</html>
