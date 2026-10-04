@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tonysharath19/Aura.git"
+    "url": "git+https://github.com/Yashwanth-Web09/aura.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tonysharath19/Aura/issues"
+    "url": "https://github.com/Yashwanth-Web09/aura/issues"
   },
-  "homepage": "https://github.com/tonysharath19/Aura#readme",
+  "homepage": "https://github.com/Yashwanth-Web09/aura.git/aura#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
